@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -62,6 +62,13 @@ export default function DiscsPage() {
   const totalPages = Math.ceil(filteredDiscs.length / perPage);
   const paginationRange = getPaginationRange(page, totalPages);
 
+  // keep the current page within valid bounds
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages === 0 ? 1 : totalPages);
+    }
+  }, [totalPages, page]);
+
   const handleReset = () => {
     setPage(1);
     setPerPage(20);
@@ -76,11 +83,12 @@ export default function DiscsPage() {
     if (!filteredDiscs.length)
       return <p>No discs match your search keyword...</p>;
 
-    return filteredDiscs.map((disc, index) => {
-      if (index >= perPage * page || index < perPage * (page - 1)) return null;
+    const start = perPage * (page - 1);
+    const end = start + perPage;
 
-      return <DiscCard key={disc.id} disc={disc} />;
-    });
+    return filteredDiscs
+      .slice(start, end)
+      .map((disc) => <DiscCard key={disc.id} disc={disc} />);
   };
 
   return (
@@ -183,6 +191,7 @@ export default function DiscsPage() {
               <PaginationItem>
                 <PaginationPrevious
                   href="#"
+                  aria-disabled={page === 1}
                   onClick={() => {
                     if (page > 1) setPage((prev) => prev - 1);
                   }}
@@ -196,7 +205,9 @@ export default function DiscsPage() {
                     <PaginationLink
                       isActive={page === item}
                       href="#"
-                      onClick={() => setPage(item)}
+                      onClick={() => {
+                        setPage(item);
+                      }}
                     >
                       {item}
                     </PaginationLink>
@@ -206,6 +217,7 @@ export default function DiscsPage() {
               <PaginationItem>
                 <PaginationNext
                   href="#"
+                  aria-disabled={page === totalPages}
                   onClick={() => {
                     if (page < totalPages) setPage((prev) => prev + 1);
                   }}

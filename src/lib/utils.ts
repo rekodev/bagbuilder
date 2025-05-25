@@ -5,6 +5,13 @@ export function cn(...inputs: Array<ClassValue>) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Generates a pagination range with ellipsis for UI display
+ * @param currentPage - The current active page
+ * @param totalPageCount - Total number of pages
+ * @param siblingCount - Number of sibling pages to show around current page
+ * @returns Array of page numbers and "ellipsis" strings
+ */
 export function getPaginationRange(
   currentPage: number,
   totalPageCount: number,
@@ -51,7 +58,9 @@ export function getPaginationRange(
     }
   }
 
-  pages.push(totalPageCount);
+  if (pages[pages.length - 1] !== totalPageCount) {
+    pages.push(totalPageCount);
+  }
 
   return pages;
 }
