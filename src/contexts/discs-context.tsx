@@ -7,11 +7,14 @@ import {
   useEffect,
   useTransition,
   ReactNode,
+  useMemo,
 } from "react";
 import { Disc } from "@/types/disc";
 
 interface DiscsContextType {
   discs: Array<Disc>;
+  discTypes: Array<string>;
+  discManufacturers: Array<string>;
   loading: boolean;
   error: string | null;
   refreshDiscs: () => void;
@@ -24,6 +27,20 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const discTypes = useMemo(() => {
+    if (!discs.length) return [];
+    const discCategories = discs.map((disc) => disc.category);
+
+    return Array.from(new Set(discCategories));
+  }, [discs]);
+
+  const discManufacturers = useMemo(() => {
+    if (!discs.length) return [];
+    const discBrands = discs.map((disc) => disc.brand);
+
+    return Array.from(new Set(discBrands));
+  }, [discs]);
 
   const getDiscData = async () => {
     startTransition(async () => {
@@ -61,6 +78,8 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
 
   const value: DiscsContextType = {
     discs,
+    discTypes,
+    discManufacturers,
     loading: loading || isPending,
     error,
     refreshDiscs,
