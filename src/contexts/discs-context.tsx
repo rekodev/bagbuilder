@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import {
   createContext,
@@ -7,9 +7,9 @@ import {
   useEffect,
   useTransition,
   ReactNode,
-  useMemo,
-} from "react";
-import { Disc } from "@/types/disc";
+  useMemo
+} from 'react';
+import { Disc } from '@/types/disc';
 
 interface DiscsContextType {
   discs: Array<Disc>;
@@ -48,7 +48,7 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
         setError(null);
         setLoading(true);
 
-        const response = await fetch("https://discit-api.fly.dev/disc");
+        const response = await fetch('https://discit-api.fly.dev/disc');
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -60,8 +60,8 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
           setDiscs(data);
         }
       } catch (err) {
-        console.error("Failed to fetch discs:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch discs");
+        console.error('Failed to fetch discs:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch discs');
       } finally {
         setLoading(false);
       }
@@ -82,7 +82,7 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
     discManufacturers,
     loading: loading || isPending,
     error,
-    refreshDiscs,
+    refreshDiscs
   };
 
   return (
@@ -94,7 +94,7 @@ export function useDiscsContext() {
   const context = useContext(DiscsContext);
   if (context === undefined) {
     throw new Error(
-      "useDiscsContext must be used within a DiscsContextProvider",
+      'useDiscsContext must be used within a DiscsContextProvider'
     );
   }
   return context;
