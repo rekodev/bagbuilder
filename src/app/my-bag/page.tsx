@@ -153,6 +153,7 @@ export default function MyBagPage() {
 
                   return (
                     <DiscCard
+                      isInBag
                       key={disc.id}
                       disc={disc}
                       onRemove={removeFromBag}
