@@ -1,24 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 import { Sparkles } from 'lucide-react';
 
 import AIRecommendationDiscCard from '@/components/ai-recommendation-disc-card';
 import DiscCard from '@/components/disc-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { EmptyBagCard } from '@/components/empty-bag-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useDiscsContext } from '@/contexts/discs-context';
-import { useToast } from '@/hooks/use-toast';
 
 import { Disc } from '@/types/disc';
 import { getBagDiscsAction, removeFromBagAction } from '@/lib/action';
+import { useDiscsContext } from '@/contexts/discs-context';
+import { useToast } from '@/hooks/use-toast';
+
+const isDiscGolfSet = (type: string) => type === 'Disc Golf Sets';
 
 export default function MyBagPage() {
-  const { discs, discTypes } = useDiscsContext();
+  const { toast } = useToast();
+  const [isPending, startTransition] = useTransition();
+  const { discs, discTypes, loading } = useDiscsContext();
+
   const [bagDiscs, setBagDiscs] = useState<Array<Disc>>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     if (!discs.length) return;
@@ -39,7 +44,7 @@ export default function MyBagPage() {
       setBagDiscs(matchedDiscs.filter((disc) => !!disc));
     };
 
-    fetchBagDiscs();
+    startTransition(fetchBagDiscs);
   }, [discs]);
 
   const removeFromBag = async (discId: string) => {
@@ -92,6 +97,34 @@ export default function MyBagPage() {
     }
   ];
 
+  const renderBagDiscs = (type?: string) => {
+    if (loading || isPending) return <p>Loading...</p>;
+    if (type && !bagDiscs.filter((disc) => disc.category === type).length)
+      return (
+        <EmptyBagCard
+          title={`You don't have any ${type.toLowerCase()} ${isDiscGolfSet(type) ? '' : 'discs'} in your bag`}
+        />
+      );
+    if (!bagDiscs.length) return <EmptyBagCard title="Your bag is empty" />;
+
+    return (
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {bagDiscs.map((disc) => {
+          if (type && disc.category !== type) return null;
+
+          return (
+            <DiscCard
+              key={disc.id}
+              disc={disc}
+              isInBag
+              onRemove={removeFromBag}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
   return (
     <div className="container mx-auto px-4 py-8 md:px-6 md:py-12">
       <div className="flex flex-col space-y-6">
@@ -112,9 +145,6 @@ export default function MyBagPage() {
               return (
                 <Badge key={type} variant="outline" className="text-sm">
                   {amountOfCertainTypeInBag} {type}
-                  {amountOfCertainTypeInBag === 1 || type.endsWith('s')
-                    ? ''
-                    : 's'}
                 </Badge>
               );
             })}
@@ -134,33 +164,11 @@ export default function MyBagPage() {
             ))}
           </TabsList>
           <TabsContent value="all" className="mt-6">
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {bagDiscs.map((disc) => (
-                <DiscCard
-                  key={disc.id}
-                  disc={disc}
-                  isInBag
-                  onRemove={removeFromBag}
-                />
-              ))}
-            </div>
+            {renderBagDiscs()}
           </TabsContent>
           {discTypes.map((type) => (
             <TabsContent key={type} value={type} className="mt-6">
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {bagDiscs.map((disc) => {
-                  if (disc.category !== type) return null;
-
-                  return (
-                    <DiscCard
-                      isInBag
-                      key={disc.id}
-                      disc={disc}
-                      onRemove={removeFromBag}
-                    />
-                  );
-                })}
-              </div>
+              {renderBagDiscs(type)}
             </TabsContent>
           ))}
         </Tabs>
