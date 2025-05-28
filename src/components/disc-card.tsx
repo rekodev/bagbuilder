@@ -1,4 +1,4 @@
-import { PlusCircle } from "lucide-react";
+import { PlusCircle, TrashIcon } from 'lucide-react';
 
 import {
   Card,
@@ -6,44 +6,50 @@ import {
   CardDescription,
   CardFooter,
   CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
+  CardTitle
+} from './ui/card';
+import { Badge } from './ui/badge';
+import { Button } from './ui/button';
 
-import { Disc } from "@/types/disc";
-import { toast } from "@/hooks/use-toast";
+import { Disc } from '@/types/disc';
+import { toast } from '@/hooks/use-toast';
+import { addToBagAction } from '@/lib/action';
 
 type Props = {
   disc: Disc;
+  isInBag?: boolean;
+  onRemove?: (discId: string) => void;
 };
 
-export default function DiscCard({ disc }: Props) {
-  const addToBag = (disc: Disc) => {
-    // TODO: Implement logic
+export default function DiscCard({ disc, isInBag, onRemove }: Props) {
+  const addToBag = async (disc: Disc) => {
+    const result = await addToBagAction({ userId: 2, discId: disc.id });
+
     toast({
-      title: "Disc added to bag",
-      description: `${disc.name} has been added to your bag.`,
+      title: result.error ? 'Unable to add disc to bag' : 'Disc added to bag',
+      description: result.error
+        ? `Unable to add ${disc.name} to your bag. Please try again.`
+        : `${disc.name} has been added to your bag.`
     });
   };
 
   return (
     <Card key={disc.id} className="overflow-hidden">
       <CardHeader className="p-4">
-        <div className="flex justify-between items-start">
+        <div className="flex items-start justify-between">
           <div>
             <CardTitle>{disc.name}</CardTitle>
             <CardDescription>{disc.brand}</CardDescription>
           </div>
           <Badge
             variant={
-              disc.category === "Distance Driver"
-                ? "default"
-                : disc.category === "Fairway Driver"
-                  ? "secondary"
-                  : disc.category === "Midrange"
-                    ? "outline"
-                    : "destructive"
+              disc.category === 'Distance Driver'
+                ? 'default'
+                : disc.category === 'Fairway Driver'
+                  ? 'secondary'
+                  : disc.category === 'Midrange'
+                    ? 'outline'
+                    : 'destructive'
             }
           >
             {disc.category}
@@ -51,7 +57,7 @@ export default function DiscCard({ disc }: Props) {
         </div>
       </CardHeader>
       <CardContent className="p-4 pt-0">
-        <div className="flex justify-between mb-4">
+        <div className="mb-4 flex justify-between">
           <div className="text-center">
             <div className="text-sm text-gray-500">Speed</div>
             <div className="text-lg font-bold">{disc.speed}</div>
@@ -69,26 +75,36 @@ export default function DiscCard({ disc }: Props) {
             <div className="text-lg font-bold">{disc.fade}</div>
           </div>
         </div>
-        <div className="h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+        <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
           <div
             className={`h-full ${
-              disc.stability === "Overstable"
-                ? "bg-blue-500"
-                : disc.stability === "Stable"
-                  ? "bg-green-500"
-                  : "bg-orange-500"
+              disc.stability === 'Overstable'
+                ? 'bg-blue-500'
+                : disc.stability === 'Stable'
+                  ? 'bg-green-500'
+                  : 'bg-orange-500'
             }`}
             style={{ width: `${(Number(disc.speed) / 14) * 100}%` }}
           />
         </div>
-        <div className="mt-1 text-xs text-right text-gray-500">
+        <div className="mt-1 text-right text-xs text-gray-500">
           {disc.stability}
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button className="w-full" onClick={() => addToBag(disc)}>
-          <PlusCircle className="mr-2 h-4 w-4" /> Add to Bag
-        </Button>
+        {isInBag ? (
+          <Button
+            className="w-full"
+            variant="secondary"
+            onClick={() => onRemove?.(disc.id)}
+          >
+            <TrashIcon className="mr-2 h-4 w-4" /> Remove from Bag
+          </Button>
+        ) : (
+          <Button className="w-full" onClick={() => addToBag(disc)}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add to Bag
+          </Button>
+        )}
       </CardFooter>
     </Card>
   );
