@@ -53,6 +53,11 @@ export default function DiscsPage() {
     [searchTerm, discs, filterManufacturer, filterType, speedRange]
   );
 
+  const bagDiscIds = useMemo(
+    () => new Set(bagDiscs.map((disc) => disc.id)),
+    [bagDiscs]
+  );
+
   const handleReset = () => {
     setPage(1);
     setPerPage(20);
@@ -73,11 +78,7 @@ export default function DiscsPage() {
     return filteredDiscs
       .slice(start, end)
       .map((disc) => (
-        <DiscCard
-          key={disc.id}
-          disc={disc}
-          isInBag={bagDiscs.some((bagDisc) => bagDisc.id === disc.id)}
-        />
+        <DiscCard key={disc.id} disc={disc} isInBag={bagDiscIds.has(disc.id)} />
       ));
   };
 

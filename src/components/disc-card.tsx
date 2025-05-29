@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { PlusCircle, TrashIcon } from 'lucide-react';
 
 import {
@@ -30,41 +30,46 @@ export default function DiscCard({
   onRemove
 }: Props) {
   const [isInBag, setIsInBag] = useState(defaultIsInBag);
+  const [isPending, startTransition] = useTransition();
 
-  const addToBag = async (disc: Disc) => {
-    const result = await addToBagAction({ userId: 2, discId: disc.id });
+  const addToBag = (disc: Disc) => {
+    startTransition(async () => {
+      const result = await addToBagAction({ userId: 2, discId: disc.id });
 
-    if (result.error) {
+      if (result.error) {
+        toast({
+          title: 'Unable to add disc to bag',
+          description: `Unable to add ${disc.name} to your bag. Please try again,`
+        });
+        return;
+      }
+
+      setIsInBag(true);
       toast({
-        title: 'Unable to add disc to bag',
-        description: `Unable to add ${disc.name} to your bag. Please try again,`
+        title: 'Disc added to bag',
+        description: `${disc.name} has been added to your bag.`
       });
-      return;
-    }
-
-    setIsInBag(true);
-    toast({
-      title: 'Disc added to bag',
-      description: `${disc.name} has been added to your bag.`
     });
   };
 
-  const removeFromBag = async (discId: string) => {
-    const response = await removeFromBagAction({ userId: 2, discId });
+  const removeFromBag = (discId: string) => {
+    startTransition(async () => {
+      const response = await removeFromBagAction({ userId: 2, discId });
 
-    if (response.error) {
+      if (response.error) {
+        toast({
+          title: 'Unable to remove disc',
+          description:
+            'We were unable to remove the disc from your bag. Please try again.'
+        });
+        return;
+      }
+
+      setIsInBag(false);
       toast({
-        title: 'Unable to remove disc',
-        description:
-          'We were unable to remove the disc from your bag. Please try again.'
+        title: 'Disc removed',
+        description: 'Disc removed from your bag.'
       });
-      return;
-    }
-
-    setIsInBag(false);
-    toast({
-      title: 'Disc removed',
-      description: 'Disc removed from your bag.'
     });
   };
 
@@ -130,6 +135,7 @@ export default function DiscCard({
         {isInBag ? (
           <Button
             className="w-full"
+            disabled={isPending}
             variant="secondary"
             onClick={() =>
               onRemove ? onRemove(disc.id) : removeFromBag(disc.id)
@@ -138,7 +144,11 @@ export default function DiscCard({
             <TrashIcon className="mr-2 h-4 w-4" /> Remove from Bag
           </Button>
         ) : (
-          <Button className="w-full" onClick={() => addToBag(disc)}>
+          <Button
+            disabled={isPending}
+            className="w-full"
+            onClick={() => addToBag(disc)}
+          >
             <PlusCircle className="mr-2 h-4 w-4" /> Add to Bag
           </Button>
         )}
