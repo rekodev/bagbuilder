@@ -1,3 +1,6 @@
+'use client';
+
+import { useState, useTransition } from 'react';
 import { PlusCircle, TrashIcon } from 'lucide-react';
 
 import {
@@ -13,7 +16,7 @@ import { Button } from './ui/button';
 
 import { Disc } from '@/types/disc';
 import { toast } from '@/hooks/use-toast';
-import { addToBagAction } from '@/lib/action';
+import { addToBagAction, removeFromBagAction } from '@/lib/action';
 
 type Props = {
   disc: Disc;
@@ -21,15 +24,52 @@ type Props = {
   onRemove?: (discId: string) => void;
 };
 
-export default function DiscCard({ disc, isInBag, onRemove }: Props) {
-  const addToBag = async (disc: Disc) => {
-    const result = await addToBagAction({ userId: 2, discId: disc.id });
+export default function DiscCard({
+  disc,
+  isInBag: defaultIsInBag,
+  onRemove
+}: Props) {
+  const [isInBag, setIsInBag] = useState(defaultIsInBag);
+  const [isPending, startTransition] = useTransition();
 
-    toast({
-      title: result.error ? 'Unable to add disc to bag' : 'Disc added to bag',
-      description: result.error
-        ? `Unable to add ${disc.name} to your bag. Please try again.`
-        : `${disc.name} has been added to your bag.`
+  const addToBag = (disc: Disc) => {
+    startTransition(async () => {
+      const result = await addToBagAction({ userId: 2, discId: disc.id });
+
+      if (result.error) {
+        toast({
+          title: 'Unable to add disc to bag',
+          description: `Unable to add ${disc.name} to your bag. Please try again,`
+        });
+        return;
+      }
+
+      setIsInBag(true);
+      toast({
+        title: 'Disc added to bag',
+        description: `${disc.name} has been added to your bag.`
+      });
+    });
+  };
+
+  const removeFromBag = (discId: string) => {
+    startTransition(async () => {
+      const response = await removeFromBagAction({ userId: 2, discId });
+
+      if (response.error) {
+        toast({
+          title: 'Unable to remove disc',
+          description:
+            'We were unable to remove the disc from your bag. Please try again.'
+        });
+        return;
+      }
+
+      setIsInBag(false);
+      toast({
+        title: 'Disc removed',
+        description: 'Disc removed from your bag.'
+      });
     });
   };
 
@@ -95,13 +135,20 @@ export default function DiscCard({ disc, isInBag, onRemove }: Props) {
         {isInBag ? (
           <Button
             className="w-full"
+            disabled={isPending}
             variant="secondary"
-            onClick={() => onRemove?.(disc.id)}
+            onClick={() =>
+              onRemove ? onRemove(disc.id) : removeFromBag(disc.id)
+            }
           >
             <TrashIcon className="mr-2 h-4 w-4" /> Remove from Bag
           </Button>
         ) : (
-          <Button className="w-full" onClick={() => addToBag(disc)}>
+          <Button
+            disabled={isPending}
+            className="w-full"
+            onClick={() => addToBag(disc)}
+          >
             <PlusCircle className="mr-2 h-4 w-4" /> Add to Bag
           </Button>
         )}
