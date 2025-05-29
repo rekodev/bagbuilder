@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import { PlusCircle, TrashIcon } from 'lucide-react';
 
 import {
@@ -13,7 +16,7 @@ import { Button } from './ui/button';
 
 import { Disc } from '@/types/disc';
 import { toast } from '@/hooks/use-toast';
-import { addToBagAction } from '@/lib/action';
+import { addToBagAction, removeFromBagAction } from '@/lib/action';
 
 type Props = {
   disc: Disc;
@@ -22,14 +25,44 @@ type Props = {
 };
 
 export default function DiscCard({ disc, isInBag, onRemove }: Props) {
+  const [isCurrentlyInBag, setIsCurrentlyInBag] = useState(isInBag);
+
   const addToBag = async (disc: Disc) => {
     const result = await addToBagAction({ userId: 2, discId: disc.id });
 
+    if (result.error) {
+      toast({
+        title: 'Unable to add disc to bag',
+        description: `Unable to add ${disc.name} to your bag. Please try again,`
+      });
+      return;
+    }
+
+    setIsCurrentlyInBag(true);
     toast({
       title: result.error ? 'Unable to add disc to bag' : 'Disc added to bag',
       description: result.error
         ? `Unable to add ${disc.name} to your bag. Please try again.`
         : `${disc.name} has been added to your bag.`
+    });
+  };
+
+  const removeFromBag = async (discId: string) => {
+    const response = await removeFromBagAction({ userId: 2, discId });
+
+    if (response.error) {
+      toast({
+        title: 'Unable to remove disc',
+        description:
+          'We were unable to remove the disc from your bag. Please try again.'
+      });
+      return;
+    }
+
+    setIsCurrentlyInBag(false);
+    toast({
+      title: 'Disc removed',
+      description: 'Disc removed from your bag.'
     });
   };
 
@@ -92,11 +125,13 @@ export default function DiscCard({ disc, isInBag, onRemove }: Props) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        {isInBag ? (
+        {isCurrentlyInBag ? (
           <Button
             className="w-full"
             variant="secondary"
-            onClick={() => onRemove?.(disc.id)}
+            onClick={() =>
+              onRemove ? onRemove(disc.id) : removeFromBag(disc.id)
+            }
           >
             <TrashIcon className="mr-2 h-4 w-4" /> Remove from Bag
           </Button>

@@ -7,12 +7,16 @@ import {
   useEffect,
   useTransition,
   ReactNode,
-  useMemo
+  useMemo,
+  useCallback
 } from 'react';
 import { Disc } from '@/types/disc';
+import { getBagDiscsAction } from '@/lib/action';
 
 interface DiscsContextType {
   discs: Array<Disc>;
+  bagDiscs: Array<Disc>;
+  updateBagDiscs: (newDiscs: Array<Disc>) => void;
   discTypes: Array<string>;
   discManufacturers: Array<string>;
   loading: boolean;
@@ -23,8 +27,9 @@ interface DiscsContextType {
 const DiscsContext = createContext<DiscsContextType | undefined>(undefined);
 
 export function DiscsContextProvider({ children }: { children: ReactNode }) {
-  const [discs, setDiscs] = useState<Disc[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [discs, setDiscs] = useState<Array<Disc>>([]);
+  const [bagDiscs, setBagDiscs] = useState<Array<Disc>>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -42,11 +47,13 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
     return Array.from(new Set(discBrands));
   }, [discs]);
 
+  const updateBagDiscs = (newDiscs: Array<Disc>) => setBagDiscs(newDiscs);
+
   const getDiscData = async () => {
     startTransition(async () => {
       try {
         setError(null);
-        setLoading(true);
+        setIsLoading(true);
 
         const response = await fetch('https://discit-api.fly.dev/disc');
 
@@ -63,10 +70,30 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
         console.error('Failed to fetch discs:', err);
         setError(err instanceof Error ? err.message : 'Failed to fetch discs');
       } finally {
-        setLoading(false);
+        setIsLoading(false);
       }
     });
   };
+
+  const fetchBagDiscs = useCallback(() => {
+    startTransition(async () => {
+      if (!discs.length) return;
+
+      const response = await getBagDiscsAction(2);
+
+      if (response.error) return;
+
+      const bag = response.data;
+
+      const matchedDiscs = bag.map((disc) => {
+        const foundDisc = discs.find((d) => d.id === disc.discId);
+        if (!foundDisc) return null;
+
+        return foundDisc;
+      });
+      setBagDiscs(matchedDiscs.filter((disc) => !!disc));
+    });
+  }, [discs]);
 
   const refreshDiscs = () => {
     getDiscData();
@@ -76,11 +103,17 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
     getDiscData();
   }, []);
 
+  useEffect(() => {
+    fetchBagDiscs();
+  }, [fetchBagDiscs]);
+
   const value: DiscsContextType = {
     discs,
+    bagDiscs,
+    updateBagDiscs,
     discTypes,
     discManufacturers,
-    loading: loading || isPending,
+    loading: isLoading || isPending,
     error,
     refreshDiscs
   };

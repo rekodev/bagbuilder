@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { useState } from 'react';
 import { Sparkles } from 'lucide-react';
 
 import AIRecommendationDiscCard from '@/components/ai-recommendation-disc-card';
@@ -10,8 +10,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyBagCard } from '@/components/empty-bag-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-import { Disc } from '@/types/disc';
-import { getBagDiscsAction, removeFromBagAction } from '@/lib/action';
+import { removeFromBagAction } from '@/lib/action';
 import { useDiscsContext } from '@/contexts/discs-context';
 import { useToast } from '@/hooks/use-toast';
 
@@ -19,33 +18,10 @@ const isDiscGolfSet = (type: string) => type === 'Disc Golf Sets';
 
 export default function MyBagPage() {
   const { toast } = useToast();
-  const [isPending, startTransition] = useTransition();
-  const { discs, discTypes, loading } = useDiscsContext();
+  const { discs, bagDiscs, updateBagDiscs, discTypes, loading } =
+    useDiscsContext();
 
-  const [bagDiscs, setBagDiscs] = useState<Array<Disc>>([]);
   const [showRecommendations, setShowRecommendations] = useState(false);
-
-  useEffect(() => {
-    if (!discs.length) return;
-
-    const fetchBagDiscs = async () => {
-      const response = await getBagDiscsAction(2);
-
-      if (response.error) return;
-
-      const bag = response.data;
-
-      const matchedDiscs = bag.map((disc) => {
-        const foundDisc = discs.find((d) => d.id === disc.discId);
-        if (!foundDisc) return null;
-
-        return foundDisc;
-      });
-      setBagDiscs(matchedDiscs.filter((disc) => !!disc));
-    };
-
-    startTransition(fetchBagDiscs);
-  }, [discs]);
 
   const removeFromBag = async (discId: string) => {
     const response = await removeFromBagAction({ userId: 2, discId });
@@ -62,7 +38,7 @@ export default function MyBagPage() {
     const removedDiscIndex = bagDiscs.findIndex((disc) => disc.id === discId);
     const newDiscs = bagDiscs.toSpliced(removedDiscIndex, 1);
 
-    setBagDiscs(newDiscs);
+    updateBagDiscs(newDiscs);
     toast({
       title: 'Disc removed',
       description: 'Disc removed from your bag.'
@@ -98,7 +74,7 @@ export default function MyBagPage() {
   ];
 
   const renderBagDiscs = (type?: string) => {
-    if (loading || isPending) return <p>Loading...</p>;
+    if (loading) return <p>Loading...</p>;
     if (type && !bagDiscs.filter((disc) => disc.category === type).length)
       return (
         <EmptyBagCard

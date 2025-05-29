@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,28 +10,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+  navigationMenuTriggerStyle
+} from '@/components/ui/navigation-menu';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { Disc, Menu, ShoppingBag, Sparkles, User } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import { ThemeToggle } from '@/components/theme-toggle';
+import { Disc, Menu, ShoppingBag, Sparkles, User } from 'lucide-react';
+import { useMobile } from '@/hooks/use-mobile';
 
 export default function Header() {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-6 flex h-16 items-center justify-between">
+    <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
+      <div className="container mx-auto flex h-16 items-center justify-between px-6">
         <div className="flex items-center gap-2">
           <Link href="/" className="flex items-center gap-2">
             <Disc className="h-6 w-6 text-green-600" />
@@ -48,14 +48,14 @@ export default function Header() {
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
-                            className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-green-50 to-green-100 dark:from-green-900 dark:to-green-800 p-6 no-underline outline-none focus:shadow-md"
+                            className="flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b from-green-50 to-green-100 p-6 no-underline outline-none select-none focus:shadow-md dark:from-green-900 dark:to-green-800"
                             href="/discs"
                           >
                             <Disc className="h-6 w-6 text-green-600 dark:text-green-400" />
-                            <div className="mb-2 mt-4 text-lg font-medium">
+                            <div className="mt-4 mb-2 text-lg font-medium">
                               Disc Catalog
                             </div>
-                            <p className="text-sm leading-tight text-muted-foreground">
+                            <p className="text-muted-foreground text-sm leading-tight">
                               Browse our extensive collection of disc golf discs
                               from all major manufacturers.
                             </p>
@@ -65,12 +65,12 @@ export default function Header() {
                       <li>
                         <Link
                           href="/discs?type=distance"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
-                          <div className="text-sm font-medium leading-none">
+                          <div className="text-sm leading-none font-medium">
                             Distance Drivers
                           </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                             Maximum distance for long drives
                           </p>
                         </Link>
@@ -78,12 +78,12 @@ export default function Header() {
                       <li>
                         <Link
                           href="/discs?type=fairway"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
-                          <div className="text-sm font-medium leading-none">
+                          <div className="text-sm leading-none font-medium">
                             Fairway Drivers
                           </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                             Control with good distance
                           </p>
                         </Link>
@@ -91,12 +91,12 @@ export default function Header() {
                       <li>
                         <Link
                           href="/discs?type=midrange"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
-                          <div className="text-sm font-medium leading-none">
+                          <div className="text-sm leading-none font-medium">
                             Midranges
                           </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                             Versatile discs for approach shots
                           </p>
                         </Link>
@@ -104,12 +104,12 @@ export default function Header() {
                       <li>
                         <Link
                           href="/discs?type=putter"
-                          className="block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
-                          <div className="text-sm font-medium leading-none">
+                          <div className="text-sm leading-none font-medium">
                             Putters
                           </div>
-                          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
                             Precision discs for putting and approaches
                           </p>
                         </Link>
@@ -123,14 +123,6 @@ export default function Header() {
                     className={navigationMenuTriggerStyle()}
                   >
                     My Bag
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink
-                    href="/ai-analyzer"
-                    className={navigationMenuTriggerStyle()}
-                  >
-                    AI Analyzer
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>
@@ -165,11 +157,6 @@ export default function Header() {
                       My Bag
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href="/ai-analyzer" className="flex w-full">
-                      AI Analyzer
-                    </Link>
-                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>Log out</DropdownMenuItem>
                 </DropdownMenuContent>
@@ -200,10 +187,10 @@ export default function Header() {
                       <Disc className="h-5 w-5 text-green-600" />
                       <span className="text-lg font-bold">BagBuilder</span>
                     </Link>
-                    <div className="flex flex-col space-y-3 mt-4">
+                    <div className="mt-4 flex flex-col space-y-3">
                       <Link
                         href="/discs"
-                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent"
+                        className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1"
                         onClick={() => setIsOpen(false)}
                       >
                         <Disc className="h-5 w-5" />
@@ -211,7 +198,7 @@ export default function Header() {
                       </Link>
                       <Link
                         href="/my-bag"
-                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent"
+                        className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1"
                         onClick={() => setIsOpen(false)}
                       >
                         <ShoppingBag className="h-5 w-5" />
@@ -219,7 +206,7 @@ export default function Header() {
                       </Link>
                       <Link
                         href="/ai-analyzer"
-                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent"
+                        className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1"
                         onClick={() => setIsOpen(false)}
                       >
                         <Sparkles className="h-5 w-5" />
@@ -227,7 +214,7 @@ export default function Header() {
                       </Link>
                       <Link
                         href="/profile"
-                        className="flex items-center gap-2 px-2 py-1 rounded-md hover:bg-accent"
+                        className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1"
                         onClick={() => setIsOpen(false)}
                       >
                         <User className="h-5 w-5" />

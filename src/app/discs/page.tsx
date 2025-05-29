@@ -1,39 +1,33 @@
-"use client";
+'use client';
 
-import { useEffect, useMemo, useState } from "react";
-import { Search } from "lucide-react";
+import { useMemo, useState } from 'react';
+import { Search } from 'lucide-react';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useDiscsContext } from '@/contexts/discs-context';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Slider } from "@/components/ui/slider";
-import { useDiscsContext } from "@/contexts/discs-context";
-import DiscCard from "@/components/disc-card";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import { getPaginationRange } from "@/lib/utils";
+  SelectValue
+} from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import DiscCard from '@/components/disc-card';
+import DiscPagination from '@/components/disc-pagination';
 
 export default function DiscsPage() {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterManufacturer, setFilterManufacturer] = useState("all");
-  const [filterType, setFilterType] = useState("all");
+  const { loading, discs, bagDiscs, discTypes, discManufacturers } =
+    useDiscsContext();
+
+  const [filterManufacturer, setFilterManufacturer] = useState('all');
+  const [filterType, setFilterType] = useState('all');
   const [speedRange, setSpeedRange] = useState([1, 14]);
+
+  const [searchTerm, setSearchTerm] = useState('');
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(20);
-  const { loading, discs, discTypes, discManufacturers } = useDiscsContext();
 
   const filteredDiscs = useMemo(
     () =>
@@ -43,10 +37,10 @@ export default function DiscsPage() {
           disc.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesManufacturer =
-          filterManufacturer === "all" || disc.brand === filterManufacturer;
+          filterManufacturer === 'all' || disc.brand === filterManufacturer;
 
         const matchesType =
-          filterType === "all" || disc.category === filterType;
+          filterType === 'all' || disc.category === filterType;
 
         const matchesSpeed =
           Number(disc.speed) >= speedRange[0] &&
@@ -56,26 +50,16 @@ export default function DiscsPage() {
           matchesSearch && matchesManufacturer && matchesType && matchesSpeed
         );
       }),
-    [searchTerm, discs, filterManufacturer, filterType, speedRange],
+    [searchTerm, discs, filterManufacturer, filterType, speedRange]
   );
-
-  const totalPages = Math.ceil(filteredDiscs.length / perPage);
-  const paginationRange = getPaginationRange(page, totalPages);
-
-  // keep the current page within valid bounds
-  useEffect(() => {
-    if (page > totalPages) {
-      setPage(totalPages === 0 ? 1 : totalPages);
-    }
-  }, [totalPages, page]);
 
   const handleReset = () => {
     setPage(1);
     setPerPage(20);
     setSpeedRange([1, 14]);
-    setSearchTerm("");
-    setFilterType("all");
-    setFilterManufacturer("all");
+    setSearchTerm('');
+    setFilterType('all');
+    setFilterManufacturer('all');
   };
 
   const renderDiscs = () => {
@@ -88,7 +72,13 @@ export default function DiscsPage() {
 
     return filteredDiscs
       .slice(start, end)
-      .map((disc) => <DiscCard key={disc.id} disc={disc} />);
+      .map((disc) => (
+        <DiscCard
+          key={disc.id}
+          disc={disc}
+          isInBag={bagDiscs.some((bagDisc) => bagDisc.id === disc.id)}
+        />
+      ));
   };
 
   return (
@@ -105,7 +95,7 @@ export default function DiscsPage() {
         {/* Search and Filters */}
         <div className="grid gap-4 md:grid-cols-4">
           <div className="relative md:col-span-2">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input
               type="search"
               placeholder="Search discs..."
@@ -151,7 +141,7 @@ export default function DiscsPage() {
               Speed Range: {speedRange[0]} - {speedRange[1]}
             </span>
             <div className="flex items-center gap-1">
-              <p className="text-sm font-medium min-w-16">Per Page:</p>
+              <p className="min-w-16 text-sm font-medium">Per Page:</p>
               <Select
                 value={String(perPage)}
                 onValueChange={(value) => setPerPage(Number(value))}
@@ -181,51 +171,16 @@ export default function DiscsPage() {
         </div>
 
         {/* Results */}
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 mb-8">
+        <div className="mb-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {renderDiscs()}
         </div>
 
-        {!!filteredDiscs.length && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  aria-disabled={page === 1}
-                  onClick={() => {
-                    if (page > 1) setPage((prev) => prev - 1);
-                  }}
-                />
-              </PaginationItem>
-              {paginationRange.map((item, index) => (
-                <PaginationItem key={index}>
-                  {item === "ellipsis" ? (
-                    <PaginationEllipsis />
-                  ) : (
-                    <PaginationLink
-                      isActive={page === item}
-                      href="#"
-                      onClick={() => {
-                        setPage(item);
-                      }}
-                    >
-                      {item}
-                    </PaginationLink>
-                  )}
-                </PaginationItem>
-              ))}
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  aria-disabled={page === totalPages}
-                  onClick={() => {
-                    if (page < totalPages) setPage((prev) => prev + 1);
-                  }}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+        <DiscPagination
+          page={page}
+          setPage={setPage}
+          perPage={perPage}
+          discs={filteredDiscs}
+        />
       </div>
     </div>
   );
