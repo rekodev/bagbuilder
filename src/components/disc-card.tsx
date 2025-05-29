@@ -24,8 +24,12 @@ type Props = {
   onRemove?: (discId: string) => void;
 };
 
-export default function DiscCard({ disc, isInBag, onRemove }: Props) {
-  const [isCurrentlyInBag, setIsCurrentlyInBag] = useState(isInBag);
+export default function DiscCard({
+  disc,
+  isInBag: defaultIsInBag,
+  onRemove
+}: Props) {
+  const [isInBag, setIsInBag] = useState(defaultIsInBag);
 
   const addToBag = async (disc: Disc) => {
     const result = await addToBagAction({ userId: 2, discId: disc.id });
@@ -38,12 +42,10 @@ export default function DiscCard({ disc, isInBag, onRemove }: Props) {
       return;
     }
 
-    setIsCurrentlyInBag(true);
+    setIsInBag(true);
     toast({
-      title: result.error ? 'Unable to add disc to bag' : 'Disc added to bag',
-      description: result.error
-        ? `Unable to add ${disc.name} to your bag. Please try again.`
-        : `${disc.name} has been added to your bag.`
+      title: 'Disc added to bag',
+      description: `${disc.name} has been added to your bag.`
     });
   };
 
@@ -59,7 +61,7 @@ export default function DiscCard({ disc, isInBag, onRemove }: Props) {
       return;
     }
 
-    setIsCurrentlyInBag(false);
+    setIsInBag(false);
     toast({
       title: 'Disc removed',
       description: 'Disc removed from your bag.'
@@ -125,7 +127,7 @@ export default function DiscCard({ disc, isInBag, onRemove }: Props) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        {isCurrentlyInBag ? (
+        {isInBag ? (
           <Button
             className="w-full"
             variant="secondary"
