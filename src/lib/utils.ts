@@ -87,3 +87,20 @@ export function getPaginationRange(
 
   return pages;
 }
+
+export const isDiscGolfSet = (type: string) => type === 'Disc Golf Sets';
+
+export function getBadgeVariant(discCategory: string) {
+  switch (discCategory) {
+    case 'Control Driver':
+      return 'default';
+    case 'Distance Driver':
+      return 'default';
+    case 'Hybrid Driver':
+      return 'secondary';
+    case 'Midrange':
+      return 'outline';
+    default:
+      return 'destructive';
+  }
+}

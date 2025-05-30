@@ -3,6 +3,12 @@
 import { useState, useTransition } from 'react';
 import { PlusCircle, TrashIcon } from 'lucide-react';
 
+import { Disc } from '@/types/disc';
+import { addToBagAction, removeFromBagAction } from '@/lib/action';
+import { getBadgeVariant } from '@/lib/utils';
+import { toast } from '@/hooks/use-toast';
+import { useDiscsContext } from '@/contexts/discs-context';
+
 import {
   Card,
   CardContent,
@@ -14,9 +20,7 @@ import {
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
 
-import { Disc } from '@/types/disc';
-import { toast } from '@/hooks/use-toast';
-import { addToBagAction, removeFromBagAction } from '@/lib/action';
+const MAX_BAG_SIZE = 20;
 
 type Props = {
   disc: Disc;
@@ -29,17 +33,26 @@ export default function DiscCard({
   isInBag: defaultIsInBag,
   onRemove
 }: Props) {
+  const { bagDiscs } = useDiscsContext();
   const [isInBag, setIsInBag] = useState(defaultIsInBag);
   const [isPending, startTransition] = useTransition();
 
   const addToBag = (disc: Disc) => {
+    if (bagDiscs.length >= MAX_BAG_SIZE) {
+      toast({
+        title: 'Unable to add disc to bag',
+        description: `Your bag is full. Remove a disc from your bag before adding a new one.`
+      });
+      return;
+    }
+
     startTransition(async () => {
       const result = await addToBagAction({ userId: 2, discId: disc.id });
 
       if (result.error) {
         toast({
           title: 'Unable to add disc to bag',
-          description: `Unable to add ${disc.name} to your bag. Please try again,`
+          description: `Unable to add ${disc.name} to your bag. Please try again.`
         });
         return;
       }
@@ -81,17 +94,7 @@ export default function DiscCard({
             <CardTitle>{disc.name}</CardTitle>
             <CardDescription>{disc.brand}</CardDescription>
           </div>
-          <Badge
-            variant={
-              disc.category === 'Distance Driver'
-                ? 'default'
-                : disc.category === 'Fairway Driver'
-                  ? 'secondary'
-                  : disc.category === 'Midrange'
-                    ? 'outline'
-                    : 'destructive'
-            }
-          >
+          <Badge variant={getBadgeVariant(disc.category)}>
             {disc.category}
           </Badge>
         </div>
@@ -99,23 +102,23 @@ export default function DiscCard({
       <CardContent className="p-4 pt-0">
         <div className="mb-4 flex justify-between">
           <div className="text-center">
-            <div className="text-sm text-gray-500">Speed</div>
+            <div className="text-sm">Speed</div>
             <div className="text-lg font-bold">{disc.speed}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-500">Glide</div>
+            <div className="text-sm">Glide</div>
             <div className="text-lg font-bold">{disc.glide}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-500">Turn</div>
+            <div className="text-sm">Turn</div>
             <div className="text-lg font-bold">{disc.turn}</div>
           </div>
           <div className="text-center">
-            <div className="text-sm text-gray-500">Fade</div>
+            <div className="text-sm">Fade</div>
             <div className="text-lg font-bold">{disc.fade}</div>
           </div>
         </div>
-        <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+        <div className="bg-secondary h-2 overflow-hidden rounded-full">
           <div
             className={`h-full ${
               disc.stability === 'Overstable'
@@ -127,9 +130,7 @@ export default function DiscCard({
             style={{ width: `${(Number(disc.speed) / 14) * 100}%` }}
           />
         </div>
-        <div className="mt-1 text-right text-xs text-gray-500">
-          {disc.stability}
-        </div>
+        <div className="mt-1 text-right text-xs">{disc.stability}</div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
         {isInBag ? (

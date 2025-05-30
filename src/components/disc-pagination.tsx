@@ -10,7 +10,7 @@ import {
   PaginationPrevious
 } from './ui/pagination';
 import { Disc } from '@/types/disc';
-import { getPaginationRange } from '@/lib/utils';
+import { cn, getPaginationRange } from '@/lib/utils';
 
 type Props = {
   discs: Array<Disc>;
@@ -56,6 +56,7 @@ export default function DiscPagination({
               <PaginationEllipsis />
             ) : (
               <PaginationLink
+                className={cn({ 'bg-primary-foreground': page === item })}
                 isActive={page === item}
                 href="#"
                 onClick={() => {

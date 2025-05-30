@@ -17,3 +17,8 @@ export type Disc = {
   pic: string;
   link: string;
 };
+
+export type AiDiscRecommendation = {
+  name: string;
+  reason: string;
+};

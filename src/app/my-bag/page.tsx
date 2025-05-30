@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { Sparkles } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { Loader, Sparkles } from 'lucide-react';
 
 import AIRecommendationDiscCard from '@/components/ai-recommendation-disc-card';
 import DiscCard from '@/components/disc-card';
@@ -9,44 +9,72 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { EmptyBagCard } from '@/components/empty-bag-card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ProgressBar } from '@/components/progress-bar';
 
-import { removeFromBagAction } from '@/lib/action';
+import {
+  getAiDiscRecommendationsAction,
+  removeFromBagAction
+} from '@/lib/action';
 import { useDiscsContext } from '@/contexts/discs-context';
 import { useToast } from '@/hooks/use-toast';
-
-const isDiscGolfSet = (type: string) => type === 'Disc Golf Sets';
+import { isDiscGolfSet } from '@/lib/utils';
+import { AiDiscRecommendation } from '@/types/disc';
 
 export default function MyBagPage() {
   const { toast } = useToast();
   const { discs, bagDiscs, updateBagDiscs, discTypes, loading } =
     useDiscsContext();
 
+  const [aiRecommendations, setAiRecommendations] = useState<
+    Array<AiDiscRecommendation>
+  >([]);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
+  const aiRecommendationsSectionRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!showRecommendations) return;
+
+    aiRecommendationsSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [showRecommendations]);
 
   const removeFromBag = async (discId: string) => {
     const response = await removeFromBagAction({ userId: 2, discId });
+    const removedDisc = bagDiscs.find((disc) => disc.id === discId);
 
-    if (response.error) {
+    if (response.error || !removedDisc) {
       toast({
-        title: 'Unable to remove disc',
+        title: 'Unable to Remove Disc',
         description:
           'We were unable to remove the disc from your bag. Please try again.'
       });
       return;
     }
 
-    const removedDiscIndex = bagDiscs.findIndex((disc) => disc.id === discId);
-    const newDiscs = bagDiscs.toSpliced(removedDiscIndex, 1);
+    const newDiscs = bagDiscs.toSpliced(bagDiscs.indexOf(removedDisc), 1);
 
     updateBagDiscs(newDiscs);
     toast({
       title: 'Disc removed',
-      description: 'Disc removed from your bag.'
+      description: `${removedDisc.name} has been removed from your bag.`
     });
   };
 
-  const getAIRecommendations = () => {
-    // TODO: Implement actual logic
+  const getAIRecommendations = async () => {
+    setIsAnalyzing(true);
+    const response = await getAiDiscRecommendationsAction(bagDiscs);
+    setIsAnalyzing(false);
+
+    if (!response.ok || !Array.isArray(response.recommendations)) {
+      toast({
+        title: 'AI Analysis Failed',
+        description:
+          'We were unable to analyze your bag. Please try again later.'
+      });
+      return;
+    }
+
+    setAiRecommendations(response.recommendations);
     setShowRecommendations(true);
     toast({
       title: 'AI Analysis Complete',
@@ -54,27 +82,8 @@ export default function MyBagPage() {
     });
   };
 
-  // TODO: Remove this mock data
-  const recommendations = [
-    {
-      name: 'Buzzz SS',
-      reason:
-        'Your bag lacks understable midranges for anhyzer lines and turnover shots.'
-    },
-    {
-      name: 'Firebird',
-      reason:
-        'Adding an overstable fairway driver would help with headwind shots and reliable fades.'
-    },
-    {
-      name: 'Zone',
-      reason:
-        'An overstable approach putter would complement your current putting lineup.'
-    }
-  ];
-
   const renderBagDiscs = (type?: string) => {
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <ProgressBar />;
     if (type && !bagDiscs.filter((disc) => disc.category === type).length)
       return (
         <EmptyBagCard
@@ -106,7 +115,7 @@ export default function MyBagPage() {
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">My Disc Bag</h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-secondary-foreground">
             Manage your disc collection and get AI-powered recommendations.
           </p>
         </div>
@@ -118,27 +127,43 @@ export default function MyBagPage() {
                 (disc) => disc.category === type
               ).length;
 
+              if (amountOfCertainTypeInBag === 0) return null;
+
               return (
-                <Badge key={type} variant="outline" className="text-sm">
+                <Badge
+                  key={type}
+                  variant="outline"
+                  className="bg-primary-foreground text-sm"
+                >
                   {amountOfCertainTypeInBag} {type}
                 </Badge>
               );
             })}
           </div>
-          <Button onClick={getAIRecommendations}>
-            <Sparkles className="mr-2 h-4 w-4" /> Analyze My Bag
+          <Button disabled={isAnalyzing} onClick={getAIRecommendations}>
+            {isAnalyzing ? (
+              <span className="flex items-center gap-2">
+                <Loader className="h-4 w-4 animate-spin" /> Analyzing
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4" /> Analyze My Bag
+              </span>
+            )}
           </Button>
         </div>
 
         <Tabs defaultValue="all" className="w-full">
-          <TabsList className="grid w-full grid-cols-8">
-            <TabsTrigger value="all">All</TabsTrigger>
-            {discTypes.map((type) => (
-              <TabsTrigger key={type} value={type}>
-                {type}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <div className="h-10 w-full overflow-x-scroll rounded-sm">
+            <TabsList className="grid min-w-max grid-cols-8">
+              <TabsTrigger value="all">All</TabsTrigger>
+              {discTypes.map((type) => (
+                <TabsTrigger key={type} value={type}>
+                  {type}
+                </TabsTrigger>
+              ))}
+            </TabsList>
+          </div>
           <TabsContent value="all" className="mt-6">
             {renderBagDiscs()}
           </TabsContent>
@@ -150,22 +175,26 @@ export default function MyBagPage() {
         </Tabs>
 
         {showRecommendations && (
-          <div className="mt-8">
+          <div
+            ref={aiRecommendationsSectionRef}
+            id="ai-recommendations"
+            className="mt-8"
+          >
             <div className="mb-6 flex flex-col space-y-2">
               <h2 className="flex items-center text-2xl font-bold tracking-tight">
-                <Sparkles className="mr-2 h-5 w-5 text-green-500" />
+                <Sparkles className="text-primary mr-2 h-5 w-5" />
                 AI Recommendations
               </h2>
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-secondary-foreground">
                 Based on our analysis of your current bag, here are some discs
                 that would complement your collection.
               </p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {recommendations.map((recommendation) => {
-                const recommendedDisc = discs.find(
-                  (disc) => disc.name === recommendation.name
+              {aiRecommendations.map((recommendation) => {
+                const recommendedDisc = discs.find((disc) =>
+                  disc.name.includes(recommendation.name)
                 );
 
                 if (!recommendedDisc) return null;
