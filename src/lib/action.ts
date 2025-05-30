@@ -73,10 +73,27 @@ export async function getAiDiscRecommendationsAction(
   );
 
   if (response.error) return { ok: false, error: response.error };
+  try {
+    const jsonMatch = response.data.output_text.match(/\[[\s\S]*\]/);
 
-  console.log(response.data.output_text);
-  return {
-    ok: true,
-    recommendations: JSON.parse(response.data.output_text)
-  };
+    if (!jsonMatch) {
+      return {
+        ok: false,
+        error: new Error('No valid JSON array found in AI response')
+      };
+    }
+
+    const jsonString = jsonMatch[0];
+
+    return {
+      ok: true,
+      recommendations: JSON.parse(jsonString)
+    };
+  } catch (parseError) {
+    console.error(parseError);
+    return {
+      ok: false,
+      error: new Error('Failed to parse AI response as JSON')
+    };
+  }
 }

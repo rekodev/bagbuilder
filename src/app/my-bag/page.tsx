@@ -18,6 +18,7 @@ import {
 import { useDiscsContext } from '@/contexts/discs-context';
 import { useToast } from '@/hooks/use-toast';
 import { isDiscGolfSet } from '@/lib/utils';
+import { AiDiscRecommendation } from '@/types/disc';
 
 export default function MyBagPage() {
   const { toast } = useToast();
@@ -25,7 +26,7 @@ export default function MyBagPage() {
     useDiscsContext();
 
   const [aiRecommendations, setAiRecommendations] = useState<
-    Array<{ name: string; reason: string }>
+    Array<AiDiscRecommendation>
   >([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showRecommendations, setShowRecommendations] = useState(false);
@@ -39,23 +40,23 @@ export default function MyBagPage() {
 
   const removeFromBag = async (discId: string) => {
     const response = await removeFromBagAction({ userId: 2, discId });
+    const removedDisc = bagDiscs.find((disc) => disc.id === discId);
 
-    if (response.error) {
+    if (response.error || !removedDisc) {
       toast({
-        title: 'Unable to remove disc',
+        title: 'Unable to Remove Disc',
         description:
           'We were unable to remove the disc from your bag. Please try again.'
       });
       return;
     }
 
-    const removedDiscIndex = bagDiscs.findIndex((disc) => disc.id === discId);
-    const newDiscs = bagDiscs.toSpliced(removedDiscIndex, 1);
+    const newDiscs = bagDiscs.toSpliced(bagDiscs.indexOf(removedDisc), 1);
 
     updateBagDiscs(newDiscs);
     toast({
       title: 'Disc removed',
-      description: 'Disc removed from your bag.'
+      description: `${removedDisc.name} has been removed from your bag.`
     });
   };
 

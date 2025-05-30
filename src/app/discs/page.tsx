@@ -105,7 +105,7 @@ export default function DiscsPage() {
             <Input
               type="search"
               placeholder="Search discs..."
-              className="pl-8"
+              className="bg-primary-foreground pl-8"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -114,7 +114,7 @@ export default function DiscsPage() {
             value={filterManufacturer}
             onValueChange={setFilterManufacturer}
           >
-            <SelectTrigger>
+            <SelectTrigger className="bg-primary-foreground">
               <SelectValue placeholder="Manufacturer" />
             </SelectTrigger>
             <SelectContent className="h-96 max-h-96 overflow-y-scroll">
@@ -127,7 +127,7 @@ export default function DiscsPage() {
             </SelectContent>
           </Select>
           <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger>
+            <SelectTrigger className="bg-primary-foreground">
               <SelectValue placeholder="Disc Type" />
             </SelectTrigger>
             <SelectContent className="max-h-96 overflow-y-scroll">
@@ -152,7 +152,7 @@ export default function DiscsPage() {
                 value={String(perPage)}
                 onValueChange={(value) => setPerPage(Number(value))}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-primary-foreground">
                   <SelectValue placeholder="Select Per Page" />
                 </SelectTrigger>
                 <SelectContent className="max-h-96 overflow-y-scroll">
