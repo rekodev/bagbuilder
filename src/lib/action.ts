@@ -2,9 +2,13 @@
 
 import { and, eq } from 'drizzle-orm';
 
+import { AiDiscRecommendation, Disc } from '@/types/disc';
+import { openAiPrompt } from '@/constants/openai';
+
 import { db } from './db';
 import { bag } from './schema';
 import { tryCatch } from './utils';
+import { openAiClient } from './openai';
 
 export async function getBagDiscsAction(userId: number) {
   const result = tryCatch(
@@ -46,4 +50,33 @@ export async function removeFromBagAction({
   );
 
   return result;
+}
+
+type GetAiDiscRecommendationsActionResp =
+  | { ok: true; recommendations: Array<AiDiscRecommendation> }
+  | { ok: false; error: Error };
+
+export async function getAiDiscRecommendationsAction(
+  discs: Array<Disc>
+): Promise<GetAiDiscRecommendationsActionResp> {
+  const bag = discs.map((disc) => ({
+    name: disc.name,
+    brand: disc.brand,
+    category: disc.category
+  }));
+
+  const response = await tryCatch(
+    openAiClient.responses.create({
+      model: 'gpt-3.5-turbo',
+      input: openAiPrompt(bag)
+    })
+  );
+
+  if (response.error) return { ok: false, error: response.error };
+
+  console.log(response.data.output_text);
+  return {
+    ok: true,
+    recommendations: JSON.parse(response.data.output_text)
+  };
 }

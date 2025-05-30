@@ -16,6 +16,11 @@ import {
 import { Slider } from '@/components/ui/slider';
 import DiscCard from '@/components/disc-card';
 import DiscPagination from '@/components/disc-pagination';
+import { ProgressBar } from '@/components/progress-bar';
+
+const DEFAULT_PAGE = 1;
+const DEFAULT_PER_PAGE = 20;
+const DEFAULT_SPEED_RANGE = [1, 14];
 
 export default function DiscsPage() {
   const { loading, discs, bagDiscs, discTypes, discManufacturers } =
@@ -23,11 +28,11 @@ export default function DiscsPage() {
 
   const [filterManufacturer, setFilterManufacturer] = useState('all');
   const [filterType, setFilterType] = useState('all');
-  const [speedRange, setSpeedRange] = useState([1, 14]);
-
   const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(20);
+
+  const [speedRange, setSpeedRange] = useState(DEFAULT_SPEED_RANGE);
+  const [page, setPage] = useState(DEFAULT_PAGE);
+  const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
 
   const filteredDiscs = useMemo(
     () =>
@@ -59,16 +64,16 @@ export default function DiscsPage() {
   );
 
   const handleReset = () => {
-    setPage(1);
-    setPerPage(20);
-    setSpeedRange([1, 14]);
+    setPage(DEFAULT_PAGE);
+    setPerPage(DEFAULT_PER_PAGE);
+    setSpeedRange(DEFAULT_SPEED_RANGE);
     setSearchTerm('');
     setFilterType('all');
     setFilterManufacturer('all');
   };
 
   const renderDiscs = () => {
-    if (loading) return <p>Loading...</p>;
+    if (loading) return <ProgressBar />;
     if (!filteredDiscs.length)
       return <p>No discs match your search keyword...</p>;
 
@@ -87,7 +92,7 @@ export default function DiscsPage() {
       <div className="flex flex-col space-y-6">
         <div className="flex flex-col space-y-2">
           <h1 className="text-3xl font-bold tracking-tight">Disc Catalog</h1>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p>
             Browse our extensive collection of disc golf discs from all major
             manufacturers.
           </p>
@@ -96,7 +101,7 @@ export default function DiscsPage() {
         {/* Search and Filters */}
         <div className="grid gap-4 md:grid-cols-4">
           <div className="relative md:col-span-2">
-            <Search className="absolute top-2.5 left-2.5 h-4 w-4 text-gray-500 dark:text-gray-400" />
+            <Search className="absolute top-2.5 left-2.5 h-4 w-4" />
             <Input
               type="search"
               placeholder="Search discs..."
@@ -137,7 +142,7 @@ export default function DiscsPage() {
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center justify-between">
+          <div className="mb-4 flex items-center justify-between">
             <span className="text-sm font-medium">
               Speed Range: {speedRange[0]} - {speedRange[1]}
             </span>
@@ -162,9 +167,9 @@ export default function DiscsPage() {
             </div>
           </div>
           <Slider
-            defaultValue={[1, 14]}
-            min={1}
-            max={14}
+            defaultValue={DEFAULT_SPEED_RANGE}
+            min={DEFAULT_SPEED_RANGE[0]}
+            max={DEFAULT_SPEED_RANGE[1]}
             step={1}
             value={speedRange}
             onValueChange={setSpeedRange}
