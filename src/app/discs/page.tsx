@@ -1,11 +1,15 @@
 'use client';
 
-import { useMemo, useState } from 'react';
 import { Search } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import { useDiscsContext } from '@/contexts/discs-context';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import useDebouncedValue from '@/hooks/use-debounced-value';
+import useQueryString from '@/hooks/use-query-string';
+
+import DiscCard from '@/components/disc-card';
+import DiscPagination from '@/components/disc-pagination';
 import {
   Select,
   SelectContent,
@@ -13,26 +17,50 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import DiscCard from '@/components/disc-card';
-import DiscPagination from '@/components/disc-pagination';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { ProgressBar } from '@/components/progress-bar';
+import { Slider } from '@/components/ui/slider';
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 20;
 const DEFAULT_SPEED_RANGE = [1, 14];
+const DEBOUCE_DELAY = 500;
 
 export default function DiscsPage() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
   const { loading, discs, bagDiscs, discTypes, discManufacturers } =
     useDiscsContext();
 
-  const [filterManufacturer, setFilterManufacturer] = useState('all');
-  const [filterType, setFilterType] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
+  const searchTermFromParams = searchParams.get('search') || '';
+  const typeFilterFromParams = searchParams.get('type') || 'all';
+  const manufacturerFilterFromParams =
+    searchParams.get('manufacturer') || 'all';
 
+  const [searchTerm, setSearchTerm] = useState(searchTermFromParams);
   const [speedRange, setSpeedRange] = useState(DEFAULT_SPEED_RANGE);
   const [page, setPage] = useState(DEFAULT_PAGE);
   const [perPage, setPerPage] = useState(DEFAULT_PER_PAGE);
+
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, DEBOUCE_DELAY);
+  const { createQueryString } = useQueryString();
+
+  useEffect(() => {
+    if (debouncedSearchTerm === searchTermFromParams) return;
+
+    router.push(
+      `${pathname}?${createQueryString('search', debouncedSearchTerm)}`
+    );
+  }, [
+    debouncedSearchTerm,
+    createQueryString,
+    pathname,
+    router,
+    searchTermFromParams
+  ]);
 
   const filteredDiscs = useMemo(
     () =>
@@ -42,10 +70,12 @@ export default function DiscsPage() {
           disc.brand.toLowerCase().includes(searchTerm.toLowerCase());
 
         const matchesManufacturer =
-          filterManufacturer === 'all' || disc.brand === filterManufacturer;
+          manufacturerFilterFromParams === 'all' ||
+          disc.brand === manufacturerFilterFromParams;
 
         const matchesType =
-          filterType === 'all' || disc.category === filterType;
+          typeFilterFromParams === 'all' ||
+          disc.category === typeFilterFromParams;
 
         const matchesSpeed =
           Number(disc.speed) >= speedRange[0] &&
@@ -55,8 +85,22 @@ export default function DiscsPage() {
           matchesSearch && matchesManufacturer && matchesType && matchesSpeed
         );
       }),
-    [searchTerm, discs, filterManufacturer, filterType, speedRange]
+    [
+      searchTerm,
+      discs,
+      manufacturerFilterFromParams,
+      typeFilterFromParams,
+      speedRange
+    ]
   );
+
+  const handleChangeTypeFilter = (value: string) => {
+    router.push(`${pathname}?${createQueryString('type', value)}`);
+  };
+
+  const handleChangeManufacturerFilter = (value: string) => {
+    router.push(`${pathname}?${createQueryString('manufacturer', value)}`);
+  };
 
   const bagDiscIds = useMemo(
     () => new Set(bagDiscs.map((disc) => disc.id)),
@@ -68,8 +112,8 @@ export default function DiscsPage() {
     setPerPage(DEFAULT_PER_PAGE);
     setSpeedRange(DEFAULT_SPEED_RANGE);
     setSearchTerm('');
-    setFilterType('all');
-    setFilterManufacturer('all');
+    handleChangeTypeFilter('all');
+    handleChangeManufacturerFilter('all');
   };
 
   const renderDiscs = () => {
@@ -107,12 +151,12 @@ export default function DiscsPage() {
               placeholder="Search discs..."
               className="bg-primary-foreground pl-8"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(event) => setSearchTerm(event.target.value)}
             />
           </div>
           <Select
-            value={filterManufacturer}
-            onValueChange={setFilterManufacturer}
+            value={manufacturerFilterFromParams}
+            onValueChange={handleChangeManufacturerFilter}
           >
             <SelectTrigger className="bg-primary-foreground">
               <SelectValue placeholder="Manufacturer" />
@@ -126,7 +170,10 @@ export default function DiscsPage() {
               ))}
             </SelectContent>
           </Select>
-          <Select value={filterType} onValueChange={setFilterType}>
+          <Select
+            value={typeFilterFromParams}
+            onValueChange={handleChangeTypeFilter}
+          >
             <SelectTrigger className="bg-primary-foreground">
               <SelectValue placeholder="Disc Type" />
             </SelectTrigger>
