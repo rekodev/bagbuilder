@@ -55,7 +55,7 @@ export default function Header() {
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
-                            className="border-secondary from-secondary to-primary-foreground flex h-full w-full flex-col justify-end rounded-md border bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
+                            className="border-secondary from-accent to-primary-foreground flex h-full w-full flex-col justify-end rounded-md border bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
                             href={Page.Discs}
                           >
                             <Disc2 className="text-secondary dark:text-secondary-foreground h-6 w-6" />

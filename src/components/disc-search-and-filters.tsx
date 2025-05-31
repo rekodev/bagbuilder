@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import useDebouncedValue from '@/hooks/use-debounced-value';
 import useQueryString from '@/hooks/use-query-string';
 import { useDiscsContext } from '@/contexts/discs-context';
-import { DEBOUCE_DELAY, DEFAULT_SPEED_RANGE } from '@/constants/filters';
+import { DEBOUNCE_DELAY, DEFAULT_SPEED_RANGE } from '@/constants/filters';
 
 import {
   Select,
@@ -47,7 +47,7 @@ export default function DiscSearchAndFilters({
   const pathname = usePathname();
   const { createQueryString } = useQueryString();
   const { discTypes, discManufacturers } = useDiscsContext();
-  const debouncedSearchTerm = useDebouncedValue(searchTerm, DEBOUCE_DELAY);
+  const debouncedSearchTerm = useDebouncedValue(searchTerm, DEBOUNCE_DELAY);
 
   useEffect(() => {
     if (debouncedSearchTerm === searchTermFromParams) return;
@@ -78,7 +78,7 @@ export default function DiscSearchAndFilters({
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-4">
       <div className="grid gap-4 md:grid-cols-4">
         <div className="relative md:col-span-2">
           <Search className="absolute top-2.5 left-2.5 h-4 w-4" />
