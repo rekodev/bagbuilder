@@ -135,9 +135,10 @@ export default function DiscCard({
       <CardFooter className="p-4 pt-0">
         {isInBag ? (
           <Button
+            size="sm"
             className="w-full"
             disabled={isPending}
-            variant="secondary"
+            variant="destructive"
             onClick={() =>
               onRemove ? onRemove(disc.id) : removeFromBag(disc.id)
             }
@@ -146,8 +147,9 @@ export default function DiscCard({
           </Button>
         ) : (
           <Button
+            size="sm"
             disabled={isPending}
-            className="w-full"
+            className="bg-secondary-foreground w-full"
             onClick={() => addToBag(disc)}
           >
             <PlusCircle className="mr-2 h-4 w-4" /> Add to Bag

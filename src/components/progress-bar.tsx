@@ -11,5 +11,5 @@ export function ProgressBar() {
     return () => clearTimeout(timer);
   }, []);
 
-  return <Progress value={progress} className="w-full" />;
+  return <Progress value={progress} className="col-span-full w-full" />;
 }

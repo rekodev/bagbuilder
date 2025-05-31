@@ -55,7 +55,7 @@ export default function Header() {
                       <li className="row-span-3">
                         <NavigationMenuLink asChild>
                           <Link
-                            className="border-secondary from-secondary to-primary-foreground flex h-full w-full flex-col justify-end rounded-md border bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
+                            className="border-secondary from-accent to-primary-foreground flex h-full w-full flex-col justify-end rounded-md border bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
                             href={Page.Discs}
                           >
                             <Disc2 className="text-secondary dark:text-secondary-foreground h-6 w-6" />
@@ -71,7 +71,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href={`${Page.Discs}?type=distance`}
+                          href={`${Page.Discs}?type=Distance+Driver`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
                           <div className="text-sm leading-none font-medium">
@@ -84,7 +84,7 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href={`${Page.Discs}?type=control`}
+                          href={`${Page.Discs}?type=Control+Driver`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
                           <div className="text-sm leading-none font-medium">
@@ -97,20 +97,33 @@ export default function Header() {
                       </li>
                       <li>
                         <Link
-                          href={`${Page.Discs}?type=midrange`}
+                          href={`${Page.Discs}?type=Midrange`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
                           <div className="text-sm leading-none font-medium">
                             Midranges
                           </div>
                           <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
-                            Versatile discs for approach shots
+                            Versatile discs for mid-range shots
                           </p>
                         </Link>
                       </li>
                       <li>
                         <Link
-                          href={`${Page.Discs}?type=putter`}
+                          href={`${Page.Discs}?type=Approach`}
+                          className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                        >
+                          <div className="text-sm leading-none font-medium">
+                            Approach Discs
+                          </div>
+                          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
+                            Perfect for approaching the basket
+                          </p>
+                        </Link>
+                      </li>
+                      <li>
+                        <Link
+                          href={`${Page.Discs}?type=Putter`}
                           className="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                         >
                           <div className="text-sm leading-none font-medium">
