@@ -73,8 +73,7 @@ export default function DiscSearchAndFilters({
 
   const handleReset = () => {
     onReset();
-    handleChangeTypeFilter('all');
-    handleChangeManufacturerFilter('all');
+    router.push(pathname);
   };
 
   return (
