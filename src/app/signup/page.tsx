@@ -17,6 +17,8 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Disc2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { authClient } from '@/lib/auth-client';
+import { Page } from '@/constants/page';
 
 export default function SignupPage() {
   const { toast } = useToast();
@@ -64,8 +66,12 @@ export default function SignupPage() {
     }
 
     try {
-      // This is where you'll integrate with better-auth
-      // Example: await signUp.email({ email, password })
+      await authClient.signUp.email({
+        email,
+        password,
+        name: '',
+        callbackURL: Page.Discs
+      });
 
       toast({
         title: 'Account created',

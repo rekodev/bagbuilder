@@ -16,6 +16,8 @@ import {
 } from '@/components/ui/card';
 import { Disc2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { authClient } from '@/lib/auth-client';
+import { Page } from '@/constants/page';
 
 export default function LoginPage() {
   const { toast } = useToast();
@@ -29,8 +31,11 @@ export default function LoginPage() {
     setIsLoading(true);
 
     try {
-      // This is where you'll integrate with better-auth
-      // Example: await signIn.email({ email, password })
+      await authClient.signIn.email({
+        email,
+        password,
+        callbackURL: Page.Discs
+      });
 
       toast({
         title: 'Login successful',
@@ -141,7 +146,7 @@ export default function LoginPage() {
         </Card>
 
         <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-          Don't have an account?{' '}
+          Don&apos;t have an account?{' '}
           <Link
             href="/signup"
             className="font-medium text-green-600 hover:text-green-500"
