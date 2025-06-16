@@ -162,16 +162,14 @@ export default function Header() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuLabel>
+                    {/* TODO: Replace user@email.com with actual user email */}
+                    Logged in as user@email.com
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
-                    <Link href={Page.Profile} className="flex w-full">
-                      Profile
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Link href={Page.MyBag} className="flex w-full">
-                      My Bag
+                    <Link href={Page.Account} className="flex w-full">
+                      My Account
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -217,12 +215,12 @@ export default function Header() {
                         <span>My Bag</span>
                       </Link>
                       <Link
-                        href={Page.Profile}
+                        href={Page.Account}
                         className="hover:bg-accent flex items-center gap-2 rounded-md px-2 py-1"
                         onClick={() => setIsOpen(false)}
                       >
                         <User className="h-5 w-5" />
-                        <span>Profile</span>
+                        <span>My Account</span>
                       </Link>
                     </div>
                   </div>

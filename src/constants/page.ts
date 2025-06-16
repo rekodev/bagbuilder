@@ -2,6 +2,6 @@ export enum Page {
   Root = '/',
   Discs = '/discs',
   MyBag = '/my-bag',
-  Profile = '/profile',
+  Account = '/account',
   SignUp = '/sign-up'
 }
