@@ -3,5 +3,7 @@ export enum Page {
   Discs = '/discs',
   MyBag = '/my-bag',
   Account = '/account',
-  SignUp = '/sign-up'
+  SignUp = '/signup',
+  Login = '/login',
+  ForgotPassword = '/forgot-password'
 }

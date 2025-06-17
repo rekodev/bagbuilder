@@ -26,10 +26,19 @@ import {
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useMobile } from '@/hooks/use-mobile';
 import { Page } from '@/constants/page';
+import { authClient } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 
 export default function Header() {
   const isMobile = useMobile();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const { data } = authClient.useSession();
+
+  const handleLogout = async () => {
+    await authClient.signOut();
+    router.push(Page.Login);
+  };
 
   return (
     <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 w-full border-b backdrop-blur">
@@ -163,8 +172,7 @@ export default function Header() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>
-                    {/* TODO: Replace user@email.com with actual user email */}
-                    Logged in as user@email.com
+                    Logged in as {data?.user.email}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem>
@@ -173,7 +181,9 @@ export default function Header() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>Log out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Log out
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
               <ThemeToggle />

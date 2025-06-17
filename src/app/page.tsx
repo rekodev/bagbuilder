@@ -7,27 +7,22 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col">
       {/* Hero Section */}
-      <section className="from-primary to-secondary bg-gradient-to-b py-20">
+      <section className="from-primary via-muted-foreground to-secondary bg-gradient-to-br py-20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">
-              <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+              <h1 className="text-secondary text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
                 Build Your Perfect Disc Golf Bag
               </h1>
-              <p className="mx-auto max-w-[700px] md:text-xl">
+              <p className="text-primary-foreground mx-auto max-w-[700px] md:text-xl">
                 Browse, organize, and optimize your disc collection with
                 AI-powered recommendations.
               </p>
             </div>
             <div className="flex flex-col gap-4 sm:flex-row">
               <Button asChild size="lg">
-                <Link href={Page.Discs}>
-                  Browse Discs <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href={Page.MyBag}>
-                  My Bag <ShoppingBag className="ml-2 h-4 w-4" />
+                <Link href={Page.SignUp}>
+                  Try Free <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
@@ -36,7 +31,7 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="bg-secondary py-12 md:py-20">
+      <section className="bg-muted py-12 md:py-20">
         <div className="container mx-auto px-4 md:px-6">
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
             <div className="flex flex-col items-center space-y-4 text-center">
@@ -80,7 +75,10 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-12 md:py-20">
+      <section
+        id="how-it-works"
+        className="bg-primary-foreground py-12 md:py-20"
+      >
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col items-center space-y-4 text-center">
             <div className="space-y-2">

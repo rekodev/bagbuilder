@@ -60,7 +60,7 @@ export default function LoginPage() {
             href="/"
             className="mb-6 flex items-center justify-center gap-2"
           >
-            <Disc2 className="h-8 w-8 text-green-600" />
+            <Disc2 className="text-primary h-8 w-8" />
             <span className="text-2xl font-bold">BagBuilder</span>
           </Link>
           <h2 className="text-3xl font-bold tracking-tight">
@@ -124,7 +124,7 @@ export default function LoginPage() {
                 <div className="text-sm">
                   <Link
                     href="/forgot-password"
-                    className="font-medium text-green-600 hover:text-green-500"
+                    className="text-primary font-medium hover:text-green-500"
                   >
                     Forgot your password?
                   </Link>
@@ -145,11 +145,11 @@ export default function LoginPage() {
           </CardContent>
         </Card>
 
-        <div className="text-center text-sm text-gray-600 dark:text-gray-400">
+        <div className="text-primary-foreground text-center">
           Don&apos;t have an account?{' '}
           <Link
-            href="/signup"
-            className="font-medium text-green-600 hover:text-green-500"
+            href={Page.SignUp}
+            className="text-primary font-medium underline hover:text-green-500"
           >
             Sign up here
           </Link>
