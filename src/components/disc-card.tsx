@@ -19,6 +19,7 @@ import {
 } from './ui/card';
 import { Badge } from './ui/badge';
 import { Button } from './ui/button';
+import { authClient } from '@/lib/auth-client';
 
 const MAX_BAG_SIZE = 20;
 
@@ -33,9 +34,12 @@ export default function DiscCard({
   isInBag: defaultIsInBag,
   onRemove
 }: Props) {
+  const { data } = authClient.useSession();
   const { bagDiscs } = useDiscsContext();
   const [isInBag, setIsInBag] = useState(defaultIsInBag);
   const [isPending, startTransition] = useTransition();
+
+  const userId = data?.user.id;
 
   const addToBag = (disc: Disc) => {
     if (bagDiscs.length >= MAX_BAG_SIZE) {
@@ -47,7 +51,9 @@ export default function DiscCard({
     }
 
     startTransition(async () => {
-      const result = await addToBagAction({ userId: 2, discId: disc.id });
+      if (!userId) return;
+
+      const result = await addToBagAction({ userId, discId: disc.id });
 
       if (result.error) {
         toast({
@@ -67,7 +73,9 @@ export default function DiscCard({
 
   const removeFromBag = (discId: string) => {
     startTransition(async () => {
-      const response = await removeFromBagAction({ userId: 2, discId });
+      if (!userId) return;
+
+      const response = await removeFromBagAction({ userId, discId });
 
       if (response.error) {
         toast({

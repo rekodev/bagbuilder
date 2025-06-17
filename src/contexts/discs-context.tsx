@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { Disc } from '@/types/disc';
 import { getBagDiscsAction } from '@/lib/action';
+import { authClient } from '@/lib/auth-client';
 
 interface DiscsContextType {
   discs: Array<Disc>;
@@ -27,6 +28,7 @@ interface DiscsContextType {
 const DiscsContext = createContext<DiscsContextType | undefined>(undefined);
 
 export function DiscsContextProvider({ children }: { children: ReactNode }) {
+  const { data } = authClient.useSession();
   const [discs, setDiscs] = useState<Array<Disc>>([]);
   const [bagDiscs, setBagDiscs] = useState<Array<Disc>>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -77,9 +79,9 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
 
   const fetchBagDiscs = useCallback(() => {
     startTransition(async () => {
-      if (!discs.length) return;
+      if (!data?.user.id || !discs.length) return;
 
-      const response = await getBagDiscsAction(2);
+      const response = await getBagDiscsAction(data.user.id);
 
       if (response.error) return;
 
@@ -93,7 +95,7 @@ export function DiscsContextProvider({ children }: { children: ReactNode }) {
       });
       setBagDiscs(matchedDiscs.filter((disc) => !!disc));
     });
-  }, [discs]);
+  }, [discs, data?.user.id]);
 
   const refreshDiscs = () => {
     getDiscData();

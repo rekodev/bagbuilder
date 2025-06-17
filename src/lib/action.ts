@@ -10,7 +10,7 @@ import { bag } from './schema';
 import { tryCatch } from './utils';
 import { openAiClient } from './openai';
 
-export async function getBagDiscsAction(userId: number) {
+export async function getBagDiscsAction(userId: string) {
   const result = tryCatch(
     db
       .select({ id: bag.id, discId: bag.discId })
@@ -25,7 +25,7 @@ export async function addToBagAction({
   userId,
   discId
 }: {
-  userId: number;
+  userId: string;
   discId: string;
 }) {
   const result = tryCatch(
@@ -39,7 +39,7 @@ export async function removeFromBagAction({
   userId,
   discId
 }: {
-  userId: number;
+  userId: string;
   discId: string;
 }) {
   const result = tryCatch(

@@ -19,11 +19,15 @@ import { useDiscsContext } from '@/contexts/discs-context';
 import { useToast } from '@/hooks/use-toast';
 import { isDiscGolfSet } from '@/lib/utils';
 import { AiDiscRecommendation } from '@/types/disc';
+import { authClient } from '@/lib/auth-client';
 
 export default function MyBagPage() {
   const { toast } = useToast();
   const { discs, bagDiscs, updateBagDiscs, discTypes, loading } =
     useDiscsContext();
+  const { data } = authClient.useSession();
+
+  const userId = data?.user.id;
 
   const [aiRecommendations, setAiRecommendations] = useState<
     Array<AiDiscRecommendation>
@@ -39,7 +43,9 @@ export default function MyBagPage() {
   }, [showRecommendations]);
 
   const removeFromBag = async (discId: string) => {
-    const response = await removeFromBagAction({ userId: 2, discId });
+    if (!userId) return;
+
+    const response = await removeFromBagAction({ userId, discId });
     const removedDisc = bagDiscs.find((disc) => disc.id === discId);
 
     if (response.error || !removedDisc) {
